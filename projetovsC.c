@@ -11,7 +11,7 @@ typedef struct {
 //adicionar um contato
 void adicionarContato(Contato *agenda, int *totalContatos) {
     if (*totalContatos >= LIMITE) {
-        printf("Limite de contatos atingido\n");
+        printf("O limite de contatos foi atingido\n");
         return;
     }
     printf("Insira o nome: ");
@@ -19,20 +19,6 @@ void adicionarContato(Contato *agenda, int *totalContatos) {
     printf("Insira o telefone: ");
     scanf("%s", agenda[*totalContatos].telefone);
     (*totalContatos)++;
-}
-
-//buscar contato pelo nome
-void buscarContato(Contato *agenda, int totalContatos) {
-    char nomeProcurado[50];
-    printf("Digite o nome do contato que procura: ");
-    scanf("%s", nomeProcurado);
-    for (int i = 0; i < totalContatos; i++) {
-        if (strcmp(agenda[i].nomeContato, nomeProcurado) == 0) {
-            printf("Contato encontrado: Nome: %s, Telefone: %s\n", agenda[i].nomeContato, agenda[i].telefone);
-            return;
-        }
-    }
-    printf("Contato não encontrado\n");
 }
 
 // excluir contato pelo nome
@@ -44,20 +30,25 @@ void excluirContato(Contato *agenda, int *totalContatos) {
         if (strcmp(agenda[i].nomeContato, nomeParaExcluir) == 0) {
             agenda[i] = agenda[*totalContatos - 1];
             (*totalContatos)--;
-            printf("Contato excluído\n");
+            printf("Contato excluido\n");
             return;
         }
     }
-    printf("Contato não encontrado\n");
+    printf("Contato nao encontrado\n");
 }
 
-// salvar os contatos em um arquivo binário
-void salvarContatos(Contato *agenda, int totalContatos) {
-    FILE *arquivo = fopen("agenda.dat", "wb");
-    if (arquivo == NULL) return;
-    fwrite(&totalContatos, sizeof(int), 1, arquivo);
-    fwrite(agenda, sizeof(Contato), totalContatos, arquivo);
-    fclose(arquivo);
+//buscar contato pelo nome
+void buscarContato(Contato *agenda, int totalContatos) {
+    char nomeProcurado[50];
+    printf("Digite o nome do contato que procura: ");
+    scanf("%s", nomeProcurado);
+    for (int i = 0; i < totalContatos; i++) {
+        if (strcmp(agenda[i].nomeContato, nomeProcurado) == 0) {
+            printf("Contato-Nome: %s, Telefone: %s\n", agenda[i].nomeContato, agenda[i].telefone);
+            return;
+        }
+    }
+    printf("Contato nao encontrado\n");
 }
 
 // carrega os contatos de um arquivo binário
@@ -69,6 +60,15 @@ void carregarContatos(Contato *agenda, int *totalContatos) {
     }
     fread(totalContatos, sizeof(int), 1, arquivo);
     fread(agenda, sizeof(Contato), *totalContatos, arquivo);
+    fclose(arquivo);
+}
+
+// salvar os contatos em um arquivo binário
+void salvarContatos(Contato *agenda, int totalContatos) {
+    FILE *arquivo = fopen("agenda.dat", "wb");
+    if (arquivo == NULL) return;
+    fwrite(&totalContatos, sizeof(int), 1, arquivo);
+    fwrite(agenda, sizeof(Contato), totalContatos, arquivo);
     fclose(arquivo);
 }
 
@@ -84,7 +84,7 @@ int main() {
         printf("2-Buscar contato\n");
         printf("3-Excluir contato\n");
         printf("4-Sair\n");
-        printf("Escolha uma opçaao: ");
+        printf("Escolha uma opcaao: ");
         scanf("%d", &escolha);
 
         switch (escolha) {
@@ -101,7 +101,7 @@ int main() {
                 salvarContatos(agenda, totalContatos);
                 break;
             default:
-                printf("Opção invlida, tente novamente\n");
+                printf("Opcao invlida, tente novamente\n");
         }
 
     } while (escolha != 4);{
