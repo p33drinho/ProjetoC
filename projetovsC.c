@@ -1,97 +1,109 @@
-#include <stdio.h>      
-#include <string.h>    
-#define MAX_REGISTROS 30   
+#include <stdio.h>
+#include <string.h>
+
+#define LIMITE 30
+
 typedef struct {
-    char nome[20];       
-    char celular[20];    
-} Registro;
-// Função para adicionar um registro
-void adicionarRegistro(Registro *registros, int *numRegistros) {
-    if (*numRegistros >= MAX_REGISTROS) {      // Verifica se o limite de registros foi atingido
-        printf("voce atingiu o maximo de registros possiveis.\n");  // Informa que o limite foi atingido
-        return;  
+    char nomeContato[20];
+    char telefone[20];
+} Contato;
+
+//adicionar um contato
+void adicionarContato(Contato *agenda, int *totalContatos) {
+    if (*totalContatos >= LIMITE) {
+        printf("Limite de contatos atingido\n");
+        return;
     }
-    printf("nome: ");    // Pede o nome do registro
-    scanf("%s", registros[*numRegistros].nome);  // Lê o nome do registro
-    printf("celular: "); // Pede o celular do registro
-    scanf("%s", registros[*numRegistros].celular); // Lê o celular do registro
-    (*numRegistros)++;  // Incrementa o número de registros
+    printf("Insira o nome: ");
+    scanf("%s", agenda[*totalContatos].nomeContato);
+    printf("Insira o telefone: ");
+    scanf("%s", agenda[*totalContatos].telefone);
+    (*totalContatos)++;
 }
-// Função para buscar um registro pelo nome
-void buscarRegistro(Registro *registros, int numRegistros) {
-    char nomeBuscado[50];  // Nome do registro a ser buscado
-    printf("nome do registro para buscar: ");  // Pede o nome do registro a buscar
-    scanf("%s", nomeBuscado);  // Lê o nome do registro
-    for (int i = 0; i < numRegistros; i++) {  // Itera pelos registros
-        if (strcmp(registros[i].nome, nomeBuscado) == 0) {  // Compara os nomes
-            printf("registro encontrado: nome: %s, celular: %s\n", registros[i].nome, registros[i].celular);  // Imprime o registro encontrado
-            return;  
+
+//buscar contato pelo nome
+void buscarContato(Contato *agenda, int totalContatos) {
+    char nomeProcurado[50];
+    printf("Digite o nome do contato que procura: ");
+    scanf("%s", nomeProcurado);
+    for (int i = 0; i < totalContatos; i++) {
+        if (strcmp(agenda[i].nomeContato, nomeProcurado) == 0) {
+            printf("Contato encontrado: Nome: %s, Telefone: %s\n", agenda[i].nomeContato, agenda[i].telefone);
+            return;
         }
     }
-    printf("registro nao foi encontrado.\n");  
+    printf("Contato não encontrado\n");
 }
-// Função para excluir um registro pelo nome
-void excluirRegistro(Registro *registros, int *numRegistros) {
-    char nomeExclusao[50];  // Nome do registro a ser excluído
-    printf("nome do registro que quer excluir: ");  // Pede o nome do registro a excluir
-    scanf("%s", nomeExclusao);  // Lê o nome do registro
-    for (int i = 0; i < *numRegistros; i++) {  // Itera pelos registros
-        if (strcmp(registros[i].nome, nomeExclusao) == 0) {  // Compara os nomes
-            registros[i] = registros[*numRegistros - 1];  // Substitui o registro pelo último registro do array
-            (*numRegistros)--;  // Decrementa o número de registros
-            return;  
+
+// excluir contato pelo nome
+void excluirContato(Contato *agenda, int *totalContatos) {
+    char nomeParaExcluir[50];
+    printf("Digite o nome do contato que deseja excluir: ");
+    scanf("%s", nomeParaExcluir);
+    for (int i = 0; i < *totalContatos; i++) {
+        if (strcmp(agenda[i].nomeContato, nomeParaExcluir) == 0) {
+            agenda[i] = agenda[*totalContatos - 1];
+            (*totalContatos)--;
+            printf("Contato excluído\n");
+            return;
         }
     }
-    printf("registro nao fui encontrado.\n");  
+    printf("Contato não encontrado\n");
 }
-// Função para salvar os registros em um arquivo binário
-void salvarRegistros(Registro *registros, int numRegistros) {
-    FILE *file = fopen("registros.dat", "wb");  // Abre o arquivo para escrita binária
-    if (file == NULL) return;  // Verifica se o arquivo foi aberto com sucesso
-    fwrite(&numRegistros, sizeof(int), 1, file);  // Escreve o número de registros no arquivo
-    fwrite(registros, sizeof(Registro), numRegistros, file);  // Escreve os registros no arquivo
-    fclose(file);  // Fecha o arquivo
+
+// salvar os contatos em um arquivo binário
+void salvarContatos(Contato *agenda, int totalContatos) {
+    FILE *arquivo = fopen("agenda.dat", "wb");
+    if (arquivo == NULL) return;
+    fwrite(&totalContatos, sizeof(int), 1, arquivo);
+    fwrite(agenda, sizeof(Contato), totalContatos, arquivo);
+    fclose(arquivo);
 }
-// Função para carregar os registros de um arquivo binário
-void carregarRegistros(Registro *registros, int *numRegistros) {
-    FILE *file = fopen("registros.dat", "rb");  // Abre o arquivo para leitura binária
-    if (file == NULL) {  // Verifica se o arquivo foi aberto com sucesso
-        *numRegistros = 0;  // Se não, define o número de registros como 0
-        return;  
+
+// carrega os contatos de um arquivo binário
+void carregarContatos(Contato *agenda, int *totalContatos) {
+    FILE *arquivo = fopen("agenda.dat", "rb");
+    if (arquivo == NULL) {
+        *totalContatos = 0;
+        return;
     }
-    fread(numRegistros, sizeof(int), 1, file);  // Lê o número de registros do arquivo
-    fread(registros, sizeof(Registro), *numRegistros, file);  // Lê os registros do arquivo
-    fclose(file);  // Fecha o arquivo
+    fread(totalContatos, sizeof(int), 1, arquivo);
+    fread(agenda, sizeof(Contato), *totalContatos, arquivo);
+    fclose(arquivo);
 }
+
 int main() {
-    Registro registros[MAX_REGISTROS];  // Array de registros
-    int numRegistros = 0;  // Número de registros
-    int opcao;  // Opção do menu
-    carregarRegistros(registros, &numRegistros);  // Carrega os registros do arquivo
+    Contato agenda[LIMITE];
+    int totalContatos = 0;
+    int escolha;
+
+    carregarContatos(agenda, &totalContatos);
+
     do {
-        printf("1. adicionar registro\n");  // Imprime a opção de adicionar registro
-        printf("2. buscar registro\n");  // Imprime a opção de buscar registro
-        printf("3. excluir registro\n");  // Imprime a opção de excluir registro
-        printf("4. sair\n");  // Imprime a opção de sair
-        printf("escolha uma das opcoes acima: ");  // Pede para escolher uma opção
-        scanf("%d", &opcao);  // Lê a opção escolhida
-        switch (opcao) {
+        printf("1-Adicionar contato\n");
+        printf("2-Buscar contato\n");
+        printf("3-Excluir contato\n");
+        printf("4-Sair\n");
+        printf("Escolha uma opçaao: ");
+        scanf("%d", &escolha);
+
+        switch (escolha) {
             case 1:
-                adicionarRegistro(registros, &numRegistros);  // Chama a função para adicionar registro
+                adicionarContato(agenda, &totalContatos);
                 break;
             case 2:
-                buscarRegistro(registros, numRegistros);  // Chama a função para buscar registro
+                buscarContato(agenda, totalContatos);
                 break;
             case 3:
-                excluirRegistro(registros, &numRegistros);  // Chama a função para excluir registro
+                excluirContato(agenda, &totalContatos);
                 break;
             case 4:
-                salvarRegistros(registros, numRegistros);  // Chama a função para salvar registros
+                salvarContatos(agenda, totalContatos);
                 break;
             default:
-                printf("opcao nao valida, bote outra opcao.\n");  // Informa que a opção escolhida é inválida
+                printf("Opção invlida, tente novamente\n");
         }
-    } while (opcao != 4);  // Continua até a opção ser sair
 
-    return 0; 
+    } while (escolha != 4);{
+    return 0;}
 }
